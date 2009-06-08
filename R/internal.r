@@ -20,114 +20,63 @@ cluster.size<- function(id){
 
 #################################Data Process#######################
 
-#This function will not delete any subjects.
 
-proc<- function(data="NA",time="NA",id){
+#This function will delete subjects with less or equal to #=del.n observations.
+
+data.proc<- function(data,formula,time=NULL,id,del.n){
   
-  data<- as.data.frame(data)
-  data.end<- ncol(data)
-  data<- data.frame(data,time,id)
-  colnames(data)[(data.end+1):(data.end+2)]<- c("time","id")
-  index<- order(data$id,data$time)
-  data<- data[index,]
-
-  cluster<- cluster.size(data$id)
+  dat<- data.frame(data)
+  col.name<- names(dat)
+  #cat("1\n")
+  #print(dat)
+  
+  cluster<- cluster.size(id)
   m<- cluster$m
   n<- cluster$n
-  data$id<- cluster$id
-  if(data$time[1]=="NA"){
+  id<- cluster$id
+  if(length(time)==0){
     time<- cluster$autotime
-  }else{
-    time<- data$time
   }
   autotime<- cluster$autotime
-  
-  return(list(data=data,time=time,autotime=autotime,id=id,m=m,n=n))
-}
-
-####################################################################
-
-#This function will delete subjects with only one observations.
-
-data.process<- function(data="NA",time="NA",id){
-  
-  data<- as.data.frame(data)
-  data.end<- ncol(data)
-  data<- data.frame(data,time,id)
-  colnames(data)[(data.end+1):(data.end+2)]<- c("time","id")
-  index<- order(data$id,data$time)
-  data<- data[index,]
-
-  cluster<- cluster.size(data$id)
-  m<- cluster$m
-  n<- cluster$n
-  data$id<- cluster$id
-
-  index<- which(n>1)
-  index2<- which(data$id==index[1])
-  for(i in 2:m){
-    index2<-c(index2,which(data$id==index[i]))  
-  }
-  data<- data[index2,]
-
-
-  cluster.new<- cluster.size(data$id)
-  id.new<- cluster.new$id
-  m.new<- cluster.new$m
-  n.new<- cluster.new$n
-  data.new<- data[,1:data.end]
-  if(data$time[1]=="NA"){
-    time.new<- cluster.new$autotime
+  index<- order(id,time)  
+  #cat("index",index,"\n")
+  #print(dat)
+  #cat("ncol.dat",ncol(dat),"\n")
+  if(ncol(dat)==1){
+    dat<- dat[index,]
   }else{
-    time.new<- data$time
+    dat<- dat[index,]
   }
-  autotime<- cluster.new$autotime
+  dat<- data.frame(dat)
+  names(dat)<- col.name
   
-  return(list(data=data.new,time=time.new,autotime=autotime,id=id.new,m=m.new,n=n.new))
+  
+  del<- which(n<=del.n)
+  if(length(del)>0){
+    n<- n[-del]
+    m<- length(n)
+    mtch<- match(id,del)
+    del.id<- which(mtch!="NA")
+    #cat("ncol(dat)",ncol(dat),"\n")
+    dat<- dat[-del.id,]
+    dat<- data.frame(dat)
+    names(dat)<- col.name
+    row.names(dat)<- 1:nrow(dat)
+    time<- time[-del.id]
+    autotime<- autotime[-del.id]
+    id<- rep(1:m,n)
+  }
+  
+  formula<- as.formula(formula)
+  fml<- as.formula(paste("~",formula[3],"+",formula[2],sep="")) 
+  #print(fml)
+  #print(dat)
+  dat<- model.matrix(fml,data=dat)
+  
+  return(list(data=dat,time=time,autotime=autotime,id=id,m=m,n=n))
 }
 
-##############################################################################
 
-#This function will delete subjects with fewer than 2 observations.
-
-data.proc.exfam<- function(data="NA",time="NA",id){
-  
-  data<- as.data.frame(data)
-  colnames(data)<- "data"
-  data.end<- ncol(data)
-  data<- data$data
-  data<- data.frame(data,time,id)
-  colnames(data)[(data.end+1):(data.end+2)]<- c("time","id")
-  index<- order(data$id,data$time)
-  data<- data[index,]
-
-  cluster<- cluster.size(data$id)
-  m<- cluster$m
-  n<- cluster$n
-  data$id<- cluster$id
-
-  index<- which(n>2)
-  index2<- which(data$id==index[1])
-  for(i in 2:m){
-    index2<-c(index2,which(data$id==index[i]))  
-  }
-  data<- data[index2,]
-
-
-  cluster.new<- cluster.size(data$id)
-  id.new<- cluster.new$id
-  m.new<- cluster.new$m
-  n.new<- cluster.new$n
-  data.new<- data[,1:data.end]
-  if(data$time[1]=="NA"){
-    time.new<- cluster.new$autotime
-  }else{
-    time.new<- data$time
-  }
-  autotime<- cluster.new$autotime
-  
-  return(list(data=data.new,time=time.new,autotime=autotime,id=id.new,m=m.new,n=n.new))
-}
 
 #################################################################################
 
@@ -154,7 +103,7 @@ residual<- function(x,y,beta,family="gaussian"){
 
 #AR1 Structure
 
-cormax.ar1<- function(alpha,id,time="NA"){
+cormax.ar1<- function(alpha,id,time=NULL){
   cluster<- cluster.size(id)
   n<- cluster$n
   
@@ -173,7 +122,7 @@ cormax.ar1<- function(alpha,id,time="NA"){
 
 #Exchangeable Structure
 
-cormax.exch<- function(alpha, id, time="NA"){
+cormax.exch<- function(alpha, id, time=NULL){
   cluster<- cluster.size(id)
   n<- cluster$n
   time<- cluster$autotime
@@ -205,7 +154,7 @@ cormax.markov<- function(alpha,time){
 
 #Tridiagonal Structure
 
-cormax.tri<- function(alpha,id,time="NA"){
+cormax.tri<- function(alpha,id,time=NULL){
   cluster<- cluster.size(id)
   n<- cluster$n
   
@@ -223,9 +172,29 @@ cormax.tri<- function(alpha,id,time="NA"){
 
 #####################################################################
 
+#Familiar Structure
+
+cormax.fam<- function(alpha,id,time=NULL){
+  cluster<- cluster.size(id)
+  n<- cluster$n
+  
+  n.max<- max(n)
+  r1<- alpha[1]
+  r2<- alpha[2]
+  cor.max<- matrix(r2,n.max,n.max)
+  cor.max[,1]<- r1
+  cor.max[1,]<- r1
+  diag(cor.max)<- 1
+  return(cor.max)
+}
+
+
+
+#####################################################################
+
 #Extended Familiar Structure
 
-cormax.exfam<- function(alpha,id,time="NA"){
+cormax.exfam<- function(alpha,id,time=NULL){
   cluster<- cluster.size(id)
   n<- cluster$n
 
@@ -249,7 +218,7 @@ cormax.exfam<- function(alpha,id,time="NA"){
 
 #############################Creating zcor#######################################
 
-gen.zcor<- function(cor.max,id,time="NA",markov=FALSE){
+gen.zcor<- function(cor.max,id,time=NULL,markov=FALSE){
   
   cluster<- cluster.size(id)
   id<- cluster$id
@@ -284,7 +253,7 @@ gen.zcor<- function(cor.max,id,time="NA",markov=FALSE){
 #AR1 Structure
 
 gee.ar1.fixed<- 
-function(formula,data,id,alpha,family="gaussian",time="NA",std.err=std.err){
+function(formula,data,id,alpha,family="gaussian",time=NULL,std.err=std.err){
   cor.max<- cormax.ar1(alpha=alpha,id=id,time=time)
   zcor<- gen.zcor(cor.max,id=id,time=time,markov=FALSE)
   geefit<- geeglm(formula=formula,data=data,id=id,std.err=std.err,
@@ -297,7 +266,7 @@ function(formula,data,id,alpha,family="gaussian",time="NA",std.err=std.err){
 #Exchangeable Structure
 
 gee.exch.fixed<- 
-function(formula,data,id,alpha,family="gaussian",time="NA",std.err=std.err){
+function(formula,data,id,alpha,family="gaussian",time=NULL,std.err=std.err){
   cor.max<- cormax.exch(alpha=alpha,id=id,time=time)
   zcor<- gen.zcor(cor.max,id,time=time,markov=FALSE)
   geefit<- geeglm(formula=formula,data=data,id=id,std.err=std.err,
@@ -310,7 +279,7 @@ function(formula,data,id,alpha,family="gaussian",time="NA",std.err=std.err){
 #Markov Structure
   
 gee.markov.fixed<- 
-function(formula,data,id,alpha,family="gaussian",time="NA",std.err=std.err){
+function(formula,data,id,alpha,family="gaussian",time=NULL,std.err=std.err){
   cor.max<- cormax.markov(alpha=alpha,time=time)
   zcor<- gen.zcor(cor.max,id=id,time=time,markov=TRUE)
   geefit<- geeglm(formula=formula,data=data,id=id,std.err=std.err,
@@ -323,7 +292,7 @@ function(formula,data,id,alpha,family="gaussian",time="NA",std.err=std.err){
 #Tridiagonal Structure
 
 gee.tri.fixed<- 
-function(formula, data,id, alpha, family="gaussian",time="NA",std.err=std.err){
+function(formula, data,id, alpha, family="gaussian",time=NULL,std.err=std.err){
   cor.max<- cormax.tri(alpha=alpha,id=id,time=time)
   zcor<- gen.zcor(cor.max,id=id,time=time,markov=FALSE)
   geefit<- geeglm(formula=formula, data=data,id=id,std.err=std.err,
@@ -333,9 +302,22 @@ function(formula, data,id, alpha, family="gaussian",time="NA",std.err=std.err){
 
 ##################################################################################
 
+#Familiar Structure
+
+gee.fam.fixed<- 
+function(formula, data,id, alpha, family="gaussian",time=NULL,std.err=std.err){
+  cor.max<- cormax.fam(alpha=alpha,id=id,time=time)
+  zcor<- gen.zcor(cor.max,id=id,time=time,markov=FALSE)
+  geefit<- geeglm(formula=formula, data=data,id=id,std.err=std.err,
+                 family=family, corstr="fixed", zcor=zcor)
+  return(geefit)
+}
+
+###################################################################################
+
 #Extended Familiar Structure
 
-gee.exfam.fixed<- function(formula,data,id,alpha,family="gaussian",time="NA",std.err=std.err){
+gee.exfam.fixed<- function(formula,data,id,alpha,family="gaussian",time=NULL,std.err=std.err){
   cor.max<- cormax.exfam(alpha=alpha,id=id,time=time)
   zcor<- gen.zcor(cor.max,id=id,time=time,markov=FALSE)
   geefit<- geeglm(formula=formula,data=data,id=id,std.err=std.err,
@@ -348,7 +330,7 @@ gee.exfam.fixed<- function(formula,data,id,alpha,family="gaussian",time="NA",std
 #GEE for all Structures.
 
 gee.fixed<- 
-function(formula,data,id,alpha,family="gaussian",time="NA",correlation,std.err=std.err){
+function(formula,data,id,alpha,family="gaussian",time=NULL,correlation,std.err=std.err){
   switch(correlation,
          ar1=gee.ar1.fixed(formula=formula,data=data,std.err=std.err,
                            id=id,alpha=alpha,family=family,time=time),
@@ -358,6 +340,8 @@ function(formula,data,id,alpha,family="gaussian",time="NA",correlation,std.err=s
                                   alpha=alpha,family=family,time=time),
          tridiagonal= gee.tri.fixed(formula=formula,data=data,id=id,std.err=std.err,
                                     alpha=alpha,family=family,time=time),
+         fam = gee.fam.fixed(formula=formula,data=data,id=id,std.err=std.err,
+                              alpha=alpha,family=family,time=time),
          ex.fam= gee.exfam.fixed(formula=formula,data=data,id=id,std.err=std.err,
                                     alpha=alpha,family=family,time=time)
          )

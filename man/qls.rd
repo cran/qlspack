@@ -11,14 +11,12 @@
 }
 \usage{
 qls(formula, data, id, family = "gaussian",
-time = "NA", correlation = "ar1", std.err = "san.se")
+time = NULL, correlation = "ar1", std.err = "san.se")
 }
 \arguments{
   \item{formula}{
 The model to be fitted. The form is similar to the item
-documentated in \code{geeglm}. However, please note that
-you should list all the design variable name in the formula.
-Functions like \code{as.factor} might not work here.
+documentated in \code{geeglm}. 
           }
   \item{data}{
 A data frame containing the variables in the model.
@@ -46,7 +44,7 @@ This argument is used if and only if 'correlation == "markov"'.
   \item{correlation}{
 a character string specifying the correlation structure. The
 following are permitted: '"ar1"', '"exchangeable"', '"markov"',
-'"tridiagonal"' and '"ex.fam"'.
+'"tridiagonal"', '"fam"' and '"ex.fam"'.
                      }
 
   \item{std.err}{
@@ -82,9 +80,10 @@ bias in the quasi-least squares estimate of the correlation parameter.
 
 \seealso{\code{\link{glm}}}
 \examples{
+require(qlspack)
 data(rat)
-qls.fit <- qls(bp ~ time + group2 + group3 + group4, data = rat, id = rat$id,
-          time = rat$time, correlation = "markov")
-summary(qls.fit)
+qlsfit.fam <- qls(bp ~ time + as.factor(group), data = rat, id = rat$id,
+          time = rat$time, correlation = "fam")
+summary(qlsfit.fam)
 }
 \keyword{models}

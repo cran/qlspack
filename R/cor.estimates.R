@@ -4,14 +4,14 @@
 
 #Stage One
 
-ar1.one<- function(resid,time="NA",id){
-
-  data<- data.process(data=resid,time=time,id=id)
-  resid<- data$data
-  time<- data$time
-  id<- data$id
-  m<- data$m
-  n<- data$n
+ar1.one<- function(resid,time=NULL,id){
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(resid)),resid),formula=resid~resid,time=time,id=id,del.n=1)
+  resid<- data1$data[,2]
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
 
   a<- rep(0,m)
   b<- rep(0,m)
@@ -34,7 +34,7 @@ ar1.one<- function(resid,time="NA",id){
 }
 
 #Stage Two
-ar1.two<- function(alpha,resid="NA",time="NA",id="NA"){
+ar1.two<- function(alpha,resid=NULL,time=NULL,id=NULL){
   2*alpha/(1+alpha^2)
 }
 
@@ -44,14 +44,14 @@ ar1.two<- function(alpha,resid="NA",time="NA",id="NA"){
 
 #Stage One
 
-exch.one<- function(resid,time="NA",id){
-
-  data<- data.process(resid,time,id)
-  resid<- data$data
-  time<- data$time
-  id<- data$id
-  m<- data$m
-  n<- data$n
+exch.one<- function(resid,time=NULL,id){
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(resid)),resid),formula=resid~resid,time=time,id=id,del.n=1)
+  resid<- data1$data[,2]
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
  
   z<- matrix(0,nrow=max(n),ncol=m)
   a<- rep(0,m)
@@ -74,14 +74,15 @@ exch.one<- function(resid,time="NA",id){
 
 #Stage Two
 
-exch.two<- function(alpha,resid="NA",time="NA",id){
-  
-  data<- data.process(resid,time,id)
-  resid<- data$resid
-  time<- data$time
-  id<- data$id
-  m<- data$m
-  n<- data$n
+exch.two<- function(alpha,resid=NULL,time=NULL,id){
+  resid<- rep(1,length(id))
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(id)),resid),formula=resid~resid,time=NULL,id=id,del.n=1)
+  resid<- data1$data
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
 
   a<- sum(n*(n-1)*alpha*(alpha*(n-2)+2)/(1+alpha*(n-1))^2)
   b<- sum(n*(n-1)*(1+alpha^2*(n-1))/(1+alpha*(n-1))^2)
@@ -94,14 +95,14 @@ exch.two<- function(alpha,resid="NA",time="NA",id){
 ############################Markov Structure############################
 
 #Stage One
-markov.one<- function(resid,time="NA",id){
-  
-  data<- data.process(resid,time,id)
-  resid<- data$data
-  time<- data$time
-  id<- data$id
-  m<- data$m
-  n<- data$n
+markov.one<- function(resid,time=NULL,id){
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(resid)),resid),formula=resid~resid,time=time,id=id,del.n=1)
+  resid<- data1$data[,2]
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
 
   z<- matrix(0,nrow=max(n),ncol=m)
   t<- matrix(0,nrow=max(n),ncol=m)
@@ -128,14 +129,16 @@ markov.one<- function(resid,time="NA",id){
 }
 
 #Stage Two
-markov.two<- function(alpha,resid="NA",time="NA",id){
+markov.two<- function(alpha,resid=NULL,time=NULL,id){
   
-  data<- data.process(resid,time,id)
-  resid<- data$resid
-  time<- data$time
-  id<- data$id
-  m<- data$m
-  n<- data$n
+  resid<- rep(1,length(id))
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(id)),resid),formula=resid~resid,time=time,id=id,del.n=1)
+  resid<- data1$data
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
  
   t<- matrix(0,nrow=max(n),ncol=m)
   for(i in 1:m){
@@ -161,14 +164,14 @@ markov.two<- function(alpha,resid="NA",time="NA",id){
 #########################Tridiagonal Structure#########################
 
 #Stage One
-tri.one<- function(resid,time="NA",id){
-  
-  data<- data.process(resid,time,id)
-  resid<- data$data
-  time<- data$time
-  id<- data$id
-  m<- data$m
-  n<- data$n
+tri.one<- function(resid,time=NULL,id){
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(resid)),resid),formula=resid~resid,time=time,id=id,del.n=1)
+  resid<- data1$data[,2]
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
   
   z<- matrix(0,nrow=max(n),ncol=m)
   funR<- function(a,i){
@@ -200,14 +203,16 @@ tri.one<- function(resid,time="NA",id){
 ########################################################################
 
 #Stage Two
-tri.two<- function(alpha,resid="NA",time="NA",id){
+tri.two<- function(alpha,resid=NULL,time=NULL,id){
   
-  data<- data.process(data.frame(resid),time,id)
-  resid<- data$resid
-  time<- data$time
-  id<- data$id
-  m<- data$m
-  n<- data$n
+  resid<- rep(1,length(id))
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(id)),resid),formula=resid~resid,time=time,id=id,del.n=1)
+  resid<- data1$data
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
 
   funRu<- function(ru,i){
     Ra<- diag(1,n[i],n[i])
@@ -237,18 +242,97 @@ tri.two<- function(alpha,resid="NA",time="NA",id){
 
 #########################################################################
 
+####################Familiar Structure################################
+
+fam.one<- function(resid,time=NULL,id){
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(resid)),resid),formula=resid~resid,time=NULL,id=id,del.n=2)
+  resid<- data1$data[,2]
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
+  t<- max(n)-1
+  
+  z<- matrix(0,nrow=max(n),ncol=m)
+  for(i in 1:m){
+    z[1:n[i],i]<- resid[which(id==i)]
+  }
+  
+  f<- function(ru){
+    x<- rep(0,m)
+    for(i in 1:m){
+      corr<- cormax.fam(ru,id=rep(1,n[i]),time=NULL) 
+      x[i]<- t(z[1:n[i],i])%*%solve(corr)%*%z[1:n[i],i]
+    }
+    return(sum(x))
+  }
+  g<- function(ru){
+     r1<- ru[1]
+     r2<- ru[2]
+     if((r1^2<(1+(t-1)*r2)/t)&&(r2>-1/(t-1))&&(r2<1)){
+       return(f(ru))
+     }else{
+       return(f(rep(0,2))+100000)}
+  }          
+  optim(rep(0,2),g,method="BFGS")$par
+}
+
+#Stage Two
+fam.two<- function(alpha,time=NULL,id){
+  
+  resid<- rep(1,length(id))
+  resid<- data.frame(resid)
+  data<- data.proc(data=resid,formula=resid~resid,time=time,id=id,del.n=2)
+  resid<- data$resid
+  time<- data$autotime
+  id<- data$id
+  m<- data$m
+  n<- data$n
+  
+  mat<- matrix(0,2,2)
+  tr.tmp<- rep(0,m)
+  for(j in 1:2){
+    for(k in 1:2){
+      for(i in 1:m){
+        tmp<- cormax.fam(alpha,rep(1,n[i]))%*%
+              (cormax.fam(diag(1,2,2)[j,],rep(1,n[i]))-cormax.fam(c(0,0),rep(1,n[i])))%*%
+              cormax.fam(alpha,rep(1,n[i]))%*%
+              (cormax.fam(diag(1,2)[k,],rep(1,n[i]))-cormax.fam(c(0,0),rep(1,n[i])))
+        tr.tmp[i]<- sum(diag(tmp))        
+      }
+      mat[j,k]<- sum(tr.tmp)
+    }
+  }
+  c<- rep(0,2)
+  for(j in 1:2){
+    for(i in 1:m){
+      tmp<- cormax.fam(alpha,rep(1,n[i]))%*%
+            (cormax.fam(diag(1,2,2)[j,],rep(1,n[i]))-cormax.fam(c(0,0),rep(1,n[i])))%*%
+            solve(cormax.fam(alpha,rep(1,n[i])))%*%
+            cormax.fam(c(0,0),rep(1,n[i]))
+      tr.tmp[i]<- sum(diag(tmp))
+    }
+    c[j]<- -sum(tr.tmp)  
+  }
+  ru<- solve(mat,c)
+  return(ru)
+}
+
+
+
 ####################Extended Familiar Structure#######################
 
 #Stage One Estimate
 
-exfam.one<- function(resid,time="NA",id){
-  
-  data<- data.proc.exfam(data.frame(resid),time,id)
-  resid<- data$data
-  time<- data$time
-  id<- data$id
-  m<- data$m
-  n<- data$n
+exfam.one<- function(resid,time=NULL,id){
+  resid<- data.frame(resid)
+  data1<- data.proc(data=cbind(rep(1,length(resid)),resid),formula=resid~resid,time=time,id=id,del.n=3)
+  resid<- data1$data[,2]
+  time<- data1$time
+  id<- data1$id
+  m<- data1$m
+  n<- data1$n
   t<- max(n)-2
   
   z<- matrix(0,nrow=max(n),ncol=m)
@@ -259,7 +343,7 @@ exfam.one<- function(resid,time="NA",id){
   f<- function(ru){
     x<- rep(0,m)
     for(i in 1:m){
-      corr<- cormax.exfam(ru,id=rep(1,n[i]),time="NA") 
+      corr<- cormax.exfam(ru,id=rep(1,n[i]),time=NULL) 
       x[i]<- t(z[1:n[i],i])%*%solve(corr)%*%z[1:n[i],i]
     }
     return(sum(x))
@@ -330,10 +414,11 @@ palp<- function(t,j){
 
 #Stage Two Estimate#
 
-exfam.two<- function(alpha,id,time="NA"){
-
-  resid="NA"
-  data<- data.proc.exfam(data.frame(resid),time,id)
+exfam.two<- function(alpha,id,time=NULL){
+  
+  resid<- rep(1,length(id))
+  resid<- data.frame(resid)
+  data<- data.proc(data=cbind(rep(1,length(id)),resid),formula=resid~resid,time=time,id=id,del.n=3)
   resid<- data$data
   time<- data$time
   id<- data$id
