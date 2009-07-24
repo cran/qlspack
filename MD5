@@ -1,0 +1,10 @@
+7ca43faaf1f67bd7c44538f0d6332831 *DESCRIPTION
+2cc1db0d80387d79230fe32beb75aff1 *NAMESPACE
+e3f69ec2522319c0a5d20e75379eae95 *R/cor.estimates.R
+3a16cabf302856f801fa9cd181754e0e *R/internal.R
+6d39b38e106b89a0ff86b7299c38c470 *R/qls.R
+791146de153331f752d0a9a03a387a5e *R/zzz.R
+2b5d1b2e4fd70acd8a53b8c833754887 *data/rat.RData
+bf5fba4e79197a13fc5ad5c5e084de90 *man/qls-internal.Rd
+80b3ffea1e349a03be8323c1448db9bd *man/qls.rd
+cd13a5e2eba7b23715b3e20acbab85db *man/rat.rd

@@ -59,6 +59,9 @@ Chaganty, N. R. 1997. An alternative approach to the
 analysis of longitudinal data via generalized estimating equations.
 \emph{Journal of Statistical Planning and Inference} \bold{63}: 39--54.
 
+Xie, J. and Shults, J. 2009. Implementation of quasi-least squares With the R package qlspack. \emph{UPenn Biostatistics Working Papers} \bold{32}.
+http://biostats.bepress.com/upennbiostat/papers/art32 
+
 Shults, J. 1996. The analysis of unbalanced and unequally spaced
 longitudinal data using quasi-least squares.
 Ph.D. Thesis, Department of Mathematics and Statistics,
